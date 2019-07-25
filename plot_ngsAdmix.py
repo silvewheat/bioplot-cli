@@ -47,7 +47,7 @@ def draw(df, info_df: pd.DataFrame, colors: list, outprefix):
     bt = [0] * len(ind)
     k = df.shape[0]
     for i in range(0, k):
-        ax.bar(left=ind, height=df.iloc[i, :].values, width=wd, bottom=bt, color=colors[i])
+        ax.bar(x=ind, height=df.iloc[i, :].values, width=wd, bottom=bt, color=colors[i], linewidth=0)
         bt = df.iloc[i, :].values + bt
     ax.set_xlim(-0.5, len(ind)-0.5)
     ax.set_xticks(ind)

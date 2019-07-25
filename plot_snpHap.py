@@ -57,22 +57,43 @@ def filter_af(df, afcutoff):
     allele freq
     过滤掉ALT频率低于cutoff的位点
     """
-    print(f'filter allele frequence, cutoff is {afcutoff}')
+    print(f'filter alt allele frequence, cutoff is {afcutoff}')
     print(f'before: {df.shape}')
-    afarray = np.nansum(df.values, axis=1) / np.sum(~np.isnan(df.values), axis=1)
+    afarray = np.nansum(df.values, axis=1) / (np.sum(~np.isnan(df.values), axis=1) * 2)
     newdf = df.loc[afarray>=afcutoff, :]
     print(f'after: {newdf.shape}')
     return newdf
 
+
+
+def filter_maf(df, afcutoff):
+    """
+    allele freq
+    过滤掉minor allele frequency频率低于cutoff的位点
+    """
+    print(f'filter minor allele frequence, cutoff is {afcutoff}')
+    print(f'before: {df.shape}')
+    afarray = np.nansum(df.values, axis=1) / (np.sum(~np.isnan(df.values), axis=1) * 2)
+    afarray[afarray>0.5] = 1 - afarray[afarray>0.5]
+    print(f'max MAF: {max(afarray)}')
+    print(f'min MAF: {min(afarray)}')
+    newdf = df.loc[afarray>=afcutoff, :]
+    print(f'after: {newdf.shape}')
+    return newdf
+
+
+
 def plot(df, font_scale, outfile):
     fig, ax = plt.subplots(1, 1, sharex=True, figsize=(30, 10))
-    sns.set(font_scale=font_scale)
-    ax = sns.heatmap(df.T,
-                     cmap='Oranges',
-                     square=True,
-                     cbar=False,
-                     linewidths=0.1,
-                     linecolor='grey')
+    ax.set_facecolor('grey')
+#    sns.set(font_scale=font_scale)
+    sns.heatmap(df.T,
+                cmap='Oranges',
+                square=False,
+                cbar=False,
+                linewidths=0,
+                linecolor='k',
+                ax=ax)
     plt.savefig(outfile, dpi=500)
 
 
@@ -81,15 +102,24 @@ def plot(df, font_scale, outfile):
 @click.option('--region', help='要画的区域，如12:1000-2000', default=None)
 @click.option('--regions-file', help='区域文件，默认None，覆盖--region', default=None)
 @click.option('--orderfile', help='个体ID顺序，画出的图会按这个排序，一行一个个体ID')
+@click.option('--afcutoff', type=float, help='alt的频率，低于这个频率的snp不画', default=None)
+@click.option('--mafcutoff', type=float, help='minor allele的频率，低于这个频率的snp不画', default=None)
 @click.option('--font-scale', help='坐标轴文字大小尺度, 默认是1', default=1, type=float)
 @click.option('--outfile', help='输出文件')
-def main(bcffile, region, regions_file, orderfile, font_scale, outfile):
+def main(bcffile, region, regions_file, orderfile, afcutoff, mafcutoff, font_scale, outfile):
     """
     从bcf文件中画snp的单倍型热图
     """
+    print('---plot_snpHap---')
     df = load_bcf2df(bcffile, region, regions_file)
+    print('load snp done.')
     sample_order_list = load_sample_order(orderfile)
     df = df[sample_order_list]
+    print('sort order done.')
+    if afcutoff:
+        df = filter_af(df, afcutoff)
+    if mafcutoff:
+        df = filter_maf(df, mafcutoff)
     plot(df, font_scale, outfile)
 
 
