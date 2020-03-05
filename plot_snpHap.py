@@ -28,11 +28,11 @@ def load_bcf2df(bcffile, region, regions_file):
                r'0/0': 0,
                r'./.': np.nan}
     if regions_file:
-        cmd = f'bcftools view -R {regions_file} {bcffile}'
+        cmd = f'''bcftools view -i 'TYPE=="snp" & N_ALT==1' -R {regions_file} {bcffile}'''
     elif region:
-        cmd = f'bcftools view {bcffile} {region}'
+        cmd = f'''bcftools view -i 'TYPE=="snp" & N_ALT==1' {bcffile} {region}'''
     else:
-        cmd = f'bcftools view {bcffile}'
+        cmd = f'''bcftools view -i 'TYPE=="snp" & N_ALT==1' {bcffile}'''
     for line in os.popen(cmd):
         if line[0] != '#':
             line = line.strip().split()
@@ -94,6 +94,8 @@ def plot(df, font_scale, outfile):
                 linewidths=0,
                 linecolor='k',
                 ax=ax)
+    for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+        label.set_fontsize(font_scale)
     plt.savefig(outfile, dpi=500)
 
 
