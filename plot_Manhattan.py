@@ -34,6 +34,19 @@ def load_allchrom_data(infile, chr_col, loc_col, val_col, log_trans, neg_logtran
     df.dropna(inplace=True)
     return df
 
+def load_cutoff(cutoff，log_trans，neg_logtrans):
+    with open(cutoff) as f:
+        cutoff = {}
+        for line in f:
+            tline = line.strip().split()
+            value = float(tline[1])
+            if log_trans:
+                value = np.log10(value)
+            elif neg_logtrans:
+                value = -np.log10(value)
+            cutoff[tline[0]] = value
+    return cutoff
+
 
 def plot(df, chr_col, loc_col, val_col, xlabel, ylabel, ylim, invert_yaxis, top_xaxis, cutoff,
          highlight, outfile, ticklabelsize, figsize, axlabelsize, markersize, fill_regions,
@@ -132,7 +145,7 @@ def plot(df, chr_col, loc_col, val_col, xlabel, ylabel, ylim, invert_yaxis, top_
 @click.option('--ylim', nargs=2, type=float, default=None, help='y轴的显示范围,如0 1, 默认不限定')
 @click.option('--invert-yaxis',  is_flag=True, default=False, help='flag, 翻转y轴, 默认不翻转')
 @click.option('--top-xaxis',  is_flag=True, default=False, help='flag, 把x轴置于顶部, 默认在底部')
-@click.option('--cutoff', default=None, help='json格式的cutoff, 脚本cal_norm_isf.py的计算结果')
+@click.option('--cutoff', default=None, help='两列，第一列染色体号，第二列对应的阈值')
 @click.option('--highlight', default=None, help='和infile相同格式的文件,在该文件中的点会在曼哈顿图中单独高亮出来,default=None')
 @click.option('--ticklabelsize', help='刻度文字大小', default=10)
 @click.option('--figsize', nargs=2, type=float, help='图像长宽, 默认15 5', default=(15, 5))
@@ -163,8 +176,8 @@ def main(infile, chr_col, loc_col, val_col, log_trans, neg_logtrans, outfile,
         fill_regions = pd.read_csv(fill_regions, sep='\t', header=None, names=['chrom', 'start', 'end'],
                                    dtype={'chrom': str, 'start': float, 'end': float})
     if cutoff:
-        with open(cutoff) as f:
-            cutoff = json.load(f)
+        cutoff = load_cutoff(cutoff，log_trans，neg_logtrans)
+ 
     plot(df, chr_col, loc_col, val_col, xlabel, ylabel, ylim, invert_yaxis, top_xaxis, cutoff,
          highlight, outfile, ticklabelsize, figsize, axlabelsize, markersize, fill_regions, windowsize)
 
