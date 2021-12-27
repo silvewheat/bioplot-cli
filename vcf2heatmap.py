@@ -215,7 +215,7 @@ def main(vcffile, region, regionfile, sitefile, groupfile, groupcolor, outgroup,
         g = sns.clustermap(df.T, row_cluster=False, col_cluster=False, yticklabels=False, xticklabels=False,
                            cmap=cmap, figsize=figsize, row_colors=sample2color,
                            vmin=-1, vmax=2,
-                           cbar_kws={"ticks":[-0.65, 0.1, 0.9,1.6]})
+                           cbar_kws={"ticks":[-0.65, 0.1, 0.9, 1.6]})
         g.cax.set_yticklabels(['miss', 'hom-REF', 'het', 'hom-ALT'])
         # 分组row_colors对应的legend
         for label, color in group2color.items(): # 3.6以后默认都是有序字典了

@@ -34,7 +34,7 @@ def load_allchrom_data(infile, chr_col, loc_col, val_col, log_trans, neg_logtran
     df.dropna(inplace=True)
     return df
 
-def load_cutoff(cutoff，log_trans，neg_logtrans):
+def load_cutoff(cutoff, log_trans, neg_logtrans):
     with open(cutoff) as f:
         cutoff = {}
         for line in f:
@@ -176,7 +176,7 @@ def main(infile, chr_col, loc_col, val_col, log_trans, neg_logtrans, outfile,
         fill_regions = pd.read_csv(fill_regions, sep='\t', header=None, names=['chrom', 'start', 'end'],
                                    dtype={'chrom': str, 'start': float, 'end': float})
     if cutoff:
-        cutoff = load_cutoff(cutoff，log_trans，neg_logtrans)
+        cutoff = load_cutoff(cutoff, log_trans, neg_logtrans)
  
     plot(df, chr_col, loc_col, val_col, xlabel, ylabel, ylim, invert_yaxis, top_xaxis, cutoff,
          highlight, outfile, ticklabelsize, figsize, axlabelsize, markersize, fill_regions, windowsize)

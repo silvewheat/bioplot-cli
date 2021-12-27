@@ -5,7 +5,6 @@ Created on Mon Oct 30 19:53:53 2017
 @author: Caiyd
 """
 
-
 import json
 import click
 from pathlib import Path

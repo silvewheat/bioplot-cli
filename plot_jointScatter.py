@@ -5,6 +5,8 @@ Created on Sun Sep  2 15:28:26 2018
 @author: YudongCai
 
 @Email: yudongcai216@gmail.com
+
+last change: Fri Jul 30 11:23:36 2021
 """
 
 
@@ -33,7 +35,7 @@ def load_infile(infile, x_col, y_col):
 
 
 
-def plot(df, x_col, y_col, cutoff_x, cutoff_y, markersize, outfile):
+def plot(df, x_col, y_col, cutoff_x, cutoff_y, highlightdata, markersize, outfile):
     fig, axScatter = plt.subplots(figsize=(5.5, 5.5))
 
     # scatter plot
@@ -94,7 +96,18 @@ def plot(df, x_col, y_col, cutoff_x, cutoff_y, markersize, outfile):
     axScatter.scatter(tdf[x_col], tdf[y_col],
                       s=markersize,
                       color='#E74C3C')
-
+    if highlightdata:
+        tdf = pd.read_csv(highlightdata,
+                          sep='\t',
+                          usecols = [x_col, y_col],
+                          dtype={
+                                 x_col: float,
+                                 y_col: float})
+        tdf.dropna(inplace=True)
+        tdf = tdf.loc[(tdf[x_col]>=cutoff_x) & (tdf[y_col]>=cutoff_y), :]
+        axScatter.scatter(tdf[x_col], tdf[y_col],
+                          s=markersize,
+                          color='#4878D0')
     plt.savefig(outfile, dpi=300, transparent=True)
 
 
@@ -107,11 +120,12 @@ def plot(df, x_col, y_col, cutoff_x, cutoff_y, markersize, outfile):
 @click.option('--y-col', help='y轴值列名')
 @click.option('--cutoff-x', help='highlight cutoff in x axis', type=float)
 @click.option('--cutoff-y', help='hightlight cutoff in y axis', type=float)
+@click.option('--highlightdata', help='额外这些位点进行highlight(过了阈值线的)，数据输入格式同infile，至少包括xcol和ycol对应的两列', type=str, default=None)
 @click.option('--markersize', default=3, help='散点大小, default is 3', type=float)
 @click.option('--outfile', help='输出文件,根据拓展名判断输出格式')
-def main(infile, x_col, y_col, cutoff_x, cutoff_y, markersize, outfile):
+def main(infile, x_col, y_col, cutoff_x, cutoff_y, highlightdata, markersize, outfile):
     df = load_infile(infile, x_col, y_col)
-    plot(df, x_col, y_col, cutoff_x, cutoff_y, markersize, outfile)
+    plot(df, x_col, y_col, cutoff_x, cutoff_y, highlightdata, markersize, outfile)
 
 
 if __name__ == '__main__':
